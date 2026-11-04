@@ -1,0 +1,41 @@
+name: Monthly Country Synchronization
+
+on:
+  schedule:
+    - cron: "0 3 1 * *"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: farmsynglobal-country-sync
+  cancel-in-progress: false
+
+jobs:
+  sync-countries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Synchronize countries
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REST_COUNTRIES_API_KEY: ${{ secrets.REST_COUNTRIES_API_KEY }}
+          PYTHONPATH: .
+        run: |
+          python -m backend.modules.countries.sync_cli
