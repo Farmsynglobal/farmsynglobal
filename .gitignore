@@ -3,3 +3,6 @@ backend/venv/
 __pycache__/
 *.pyc
 .env
+# Environment files - never commit secrets
+.env
+backend/.env.production
